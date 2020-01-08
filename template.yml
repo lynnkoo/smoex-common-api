@@ -1,0 +1,35 @@
+ROSTemplateFormatVersion: '2015-09-01'
+Transform: 'Aliyun::Serverless-2018-04-03'
+Resources:
+  # Create Service test-java
+  smoex-service:
+    Type: 'Aliyun::Serverless::Service'
+    Properties:
+      Description: 'Hello SpringBoot On FC'
+      Policies:
+        - AliyunOSSFullAccess
+
+      InternetAccess: true
+
+    # Create function demo-springboot
+    user:
+      Type: 'Aliyun::Serverless::Function'
+      Properties:
+        Initializer: hello.FcHandler::initialize
+        Handler: hello.FcHandler::handleRequest
+        Runtime: java8
+        CodeUri: './target/common-0.0.1-SNAPSHOT.jar'
+        MemorySize: 256
+        Timeout: 60
+        InitializationTimeout: 60
+        EnvironmentVariables:
+          'USER_CONTEXT_PATH': '/2016-08-15/proxy/smoex-service/user'
+          'APP_BASE_DIR': '/tmp'
+
+      # Create http trigger
+      Events:
+        http: # trigger name
+          Type: HTTP # http trigger
+          Properties:
+              AuthType: ANONYMOUS
+              Methods: ['GET', 'POST']
